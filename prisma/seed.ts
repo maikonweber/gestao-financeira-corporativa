@@ -17,29 +17,9 @@ async function main(): Promise<void> {
     create: { name, email, passwordHash },
   });
 
-  const categories = await Promise.all(
-    [
-      { name: 'Salaries', description: 'Employee payroll' },
-      { name: 'Marketing', description: 'Advertising and campaigns' },
-      { name: 'Office Rent', description: 'Monthly office lease' },
-      { name: 'Sales Revenue', description: 'Product and service sales' },
-      { name: 'Investments', description: 'Investment returns' },
-    ].map((category) =>
-      prisma.category.upsert({
-        where: {
-          id: '00000000-0000-0000-0000-000000000000',
-        },
-        update: {},
-        create: {
-          userId: user.id,
-          name: category.name,
-          description: category.description,
-        },
-      }),
-    ),
-  );
+  await prisma.transaction.deleteMany({ where: { userId: user.id } });
+  await prisma.category.deleteMany({ where: { userId: user.id } });
 
-  // Create categories individually (upsert by name per user is not unique in schema)
   const salaryCategory = await prisma.category.create({
     data: {
       userId: user.id,
@@ -79,8 +59,6 @@ async function main(): Promise<void> {
       description: 'Investment returns',
     },
   });
-
-  await prisma.transaction.deleteMany({ where: { userId: user.id } });
 
   await prisma.transaction.createMany({
     data: [
@@ -128,7 +106,6 @@ async function main(): Promise<void> {
   });
 
   console.log(`Seed completed for user: ${email}`);
-  console.log(`Categories created: ${categories.length}`);
 }
 
 main()
