@@ -8,6 +8,7 @@ export declare class CategoriesRepository {
     create(userId: string, dto: CreateCategoryDto): Promise<Category>;
     findAllByUser(userId: string): Promise<Category[]>;
     findByIdAndUser(id: string, userId: string): Promise<Category | null>;
+    countTransactions(categoryId: string): Promise<number>;
     update(id: string, _userId: string, dto: UpdateCategoryDto): Promise<Category>;
     delete(id: string, _userId: string): Promise<Category>;
 }

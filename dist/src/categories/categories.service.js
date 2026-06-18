@@ -59,6 +59,16 @@ let CategoriesService = class CategoriesService {
     }
     async remove(userId, id) {
         await this.findOne(userId, id);
+        const transactionCount = await this.categoriesRepository.countTransactions(id);
+        if (transactionCount > 0) {
+            this.logger.warn({
+                event: 'categories.delete.conflict',
+                userId,
+                categoryId: id,
+                transactionCount,
+            }, 'Category delete blocked — linked transactions exist');
+            throw new common_1.ConflictException('Cannot delete category with associated transactions');
+        }
         await this.categoriesRepository.delete(id, userId);
         this.logger.info({ event: 'categories.delete.success', userId, categoryId: id }, 'Category deleted');
     }

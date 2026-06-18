@@ -29,6 +29,12 @@ let PrismaExceptionFilter = class PrismaExceptionFilter {
             case 'P2002':
                 httpException = new common_1.ConflictException('Resource already exists');
                 break;
+            case 'P2003':
+                httpException = new common_1.ConflictException('Cannot delete or update resource because it is referenced by other records');
+                break;
+            case 'P2020':
+                httpException = new common_1.BadRequestException('Value is out of range for one or more fields');
+                break;
             case 'P2025':
                 httpException = new common_1.NotFoundException('Resource not found');
                 break;

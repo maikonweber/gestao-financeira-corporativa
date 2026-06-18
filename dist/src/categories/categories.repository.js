@@ -37,6 +37,11 @@ let CategoriesRepository = class CategoriesRepository {
             where: { id, userId },
         });
     }
+    countTransactions(categoryId) {
+        return this.prisma.transaction.count({
+            where: { categoryId },
+        });
+    }
     update(id, _userId, dto) {
         return this.prisma.category.update({
             where: { id },

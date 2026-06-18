@@ -9,10 +9,11 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CreateTransactionDto = void 0;
+exports.CreateTransactionDto = exports.MAX_TRANSACTION_AMOUNT = void 0;
 const swagger_1 = require("@nestjs/swagger");
 const class_validator_1 = require("class-validator");
 const client_1 = require("@prisma/client");
+exports.MAX_TRANSACTION_AMOUNT = 999_999_999_999.99;
 class CreateTransactionDto {
     categoryId;
     description;
@@ -34,9 +35,12 @@ __decorate([
     __metadata("design:type", String)
 ], CreateTransactionDto.prototype, "description", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: 299.99 }),
+    (0, swagger_1.ApiProperty)({ example: 299.99, maximum: exports.MAX_TRANSACTION_AMOUNT }),
     (0, class_validator_1.IsNumber)({ maxDecimalPlaces: 2 }),
     (0, class_validator_1.IsPositive)(),
+    (0, class_validator_1.Max)(exports.MAX_TRANSACTION_AMOUNT, {
+        message: `amount must not exceed ${exports.MAX_TRANSACTION_AMOUNT}`,
+    }),
     __metadata("design:type", Number)
 ], CreateTransactionDto.prototype, "amount", void 0);
 __decorate([

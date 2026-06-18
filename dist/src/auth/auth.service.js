@@ -75,7 +75,7 @@ let AuthService = class AuthService {
             passwordHash,
         });
         this.logger.info({ event: 'auth.register.success', userId: user.id, email: user.email }, 'User registered successfully');
-        return this.buildAuthResponse(user);
+        return this.buildAuthResponse(user.id, user.email);
     }
     async login(dto) {
         this.logger.info({ event: 'auth.login.attempt', email: dto.email }, 'Attempting user login');
@@ -89,25 +89,15 @@ let AuthService = class AuthService {
             this.logger.warn({ event: 'auth.login.failed', email: dto.email, reason: 'invalid_password' }, 'Login failed — invalid password');
             throw new common_1.UnauthorizedException('Invalid credentials');
         }
-        const userEntity = this.usersService.toEntity(user);
-        this.logger.info({ event: 'auth.login.success', userId: userEntity.id, email: userEntity.email }, 'User logged in successfully');
-        return this.buildAuthResponse(userEntity);
+        this.logger.info({ event: 'auth.login.success', userId: user.id, email: user.email }, 'User logged in successfully');
+        return this.buildAuthResponse(user.id, user.email);
     }
-    buildAuthResponse(user) {
+    buildAuthResponse(userId, email) {
         const accessToken = this.jwtService.sign({
-            sub: user.id,
-            email: user.email,
+            sub: userId,
+            email,
         });
-        return {
-            accessToken,
-            user: {
-                id: user.id,
-                name: user.name,
-                email: user.email,
-                createdAt: user.createdAt,
-                updatedAt: user.updatedAt,
-            },
-        };
+        return { accessToken };
     }
 };
 exports.AuthService = AuthService;

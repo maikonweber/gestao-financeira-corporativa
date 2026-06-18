@@ -11,10 +11,8 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthResponseDto = void 0;
 const swagger_1 = require("@nestjs/swagger");
-const user_entity_1 = require("../../users/entities/user.entity");
 class AuthResponseDto {
     accessToken;
-    user;
 }
 exports.AuthResponseDto = AuthResponseDto;
 __decorate([
@@ -24,11 +22,4 @@ __decorate([
     }),
     __metadata("design:type", String)
 ], AuthResponseDto.prototype, "accessToken", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({
-        type: user_entity_1.UserEntity,
-        description: 'Dados do usuário autenticado (sem senha)',
-    }),
-    __metadata("design:type", user_entity_1.UserEntity)
-], AuthResponseDto.prototype, "user", void 0);
 //# sourceMappingURL=auth-response.dto.js.map
