@@ -14,7 +14,7 @@ const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
 const adapter_pg_1 = require("@prisma/adapter-pg");
 const client_1 = require("@prisma/client");
-const pg_1 = require("pg");
+const pg_pool_util_1 = require("./pg-pool.util");
 let PrismaService = class PrismaService extends client_1.PrismaClient {
     pool;
     constructor(configService) {
@@ -22,7 +22,7 @@ let PrismaService = class PrismaService extends client_1.PrismaClient {
         if (!connectionString) {
             throw new Error('DATABASE_URL is not defined');
         }
-        const pool = new pg_1.Pool({ connectionString });
+        const pool = (0, pg_pool_util_1.createPgPool)(connectionString);
         const adapter = new adapter_pg_1.PrismaPg(pool);
         super({ adapter });
         this.pool = pool;

@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '@prisma/client';
 import { Pool } from 'pg';
+import { createPgPool } from './pg-pool.util';
 
 @Injectable()
 export class PrismaService
@@ -18,7 +19,7 @@ export class PrismaService
       throw new Error('DATABASE_URL is not defined');
     }
 
-    const pool = new Pool({ connectionString });
+    const pool = createPgPool(connectionString);
     const adapter = new PrismaPg(pool);
 
     super({ adapter });
