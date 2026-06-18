@@ -7,18 +7,26 @@ import {
 } from 'class-validator';
 
 export class RegisterDto {
-  @ApiProperty({ example: 'John Doe' })
+  @ApiProperty({
+    example: 'João Silva',
+    description: 'Nome completo do usuário corporativo',
+  })
   @IsString()
   @IsNotEmpty()
   name!: string;
 
-  @ApiProperty({ example: 'john@company.com' })
+  @ApiProperty({
+    example: 'joao@empresa.com',
+    description: 'E-mail corporativo único no sistema',
+  })
   @IsEmail()
   @IsNotEmpty()
   email!: string;
 
-  @ApiProperty({ example: 'SecurePass@123', minLength: 8 })
-  @IsString()
-  @MinLength(8)
+  @ApiProperty({
+    example: 'SecurePass@123',
+    minLength: 8,
+    description: 'Senha com no mínimo 8 caracteres (armazenada com bcrypt)',
+  })
   password!: string;
 }

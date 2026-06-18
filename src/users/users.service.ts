@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { User } from '../../generated/prisma/client';
+import { User } from '@prisma/client';
 import { UserEntity } from './entities/user.entity';
 import { UsersRepository } from './users.repository';
 

@@ -1,6 +1,8 @@
+import { createMockLogger } from '../testing/pino-logger.mock';
 import { ConflictException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
+import { getLoggerToken } from 'nestjs-pino';
 import { AuthService } from './auth.service';
 import { UsersService } from '../users/users.service';
 
@@ -30,6 +32,10 @@ describe('AuthService', () => {
         AuthService,
         { provide: UsersService, useValue: usersService },
         { provide: JwtService, useValue: jwtService },
+        {
+          provide: getLoggerToken(AuthService.name),
+          useValue: createMockLogger(),
+        },
       ],
     }).compile();
 

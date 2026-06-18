@@ -1,8 +1,18 @@
 import 'dotenv/config';
 import * as bcrypt from 'bcrypt';
-import { PrismaClient, TransactionType } from '../generated/prisma/client';
+import { PrismaPg } from '@prisma/adapter-pg';
+import { PrismaClient, TransactionType } from '@prisma/client';
+import { Pool } from 'pg';
 
-const prisma = new PrismaClient();
+const connectionString = process.env.DATABASE_URL;
+
+if (!connectionString) {
+  throw new Error('DATABASE_URL is not defined');
+}
+
+const pool = new Pool({ connectionString });
+const adapter = new PrismaPg(pool);
+const prisma = new PrismaClient({ adapter });
 
 async function main(): Promise<void> {
   const name = process.env.SEED_USER_NAME ?? 'Admin User';
@@ -115,4 +125,5 @@ main()
   })
   .finally(async () => {
     await prisma.$disconnect();
+    await pool.end();
   });

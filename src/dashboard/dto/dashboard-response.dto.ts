@@ -12,15 +12,27 @@ export class TopExpenseCategoryDto {
 }
 
 export class DashboardResponseDto {
-  @ApiProperty({ example: '45000.00' })
+  @ApiProperty({
+    example: '45000.00',
+    description: 'Saldo atual (totalIncome − totalExpense)',
+  })
   currentBalance!: string;
 
-  @ApiProperty({ example: '120000.00' })
+  @ApiProperty({
+    example: '120000.00',
+    description: 'Soma de todas as transações do tipo INCOME',
+  })
   totalIncome!: string;
 
-  @ApiProperty({ example: '75000.00' })
+  @ApiProperty({
+    example: '75000.00',
+    description: 'Soma de todas as transações do tipo EXPENSE',
+  })
   totalExpense!: string;
 
-  @ApiProperty({ type: [TopExpenseCategoryDto] })
+  @ApiProperty({
+    type: [TopExpenseCategoryDto],
+    description: 'Top 5 categorias com maior volume de despesas',
+  })
   topExpenseCategories!: TopExpenseCategoryDto[];
 }

@@ -1,5 +1,7 @@
 import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { getLoggerToken } from 'nestjs-pino';
+import { createMockLogger } from '../testing/pino-logger.mock';
 import { CategoriesRepository } from './categories.repository';
 import { CategoriesService } from './categories.service';
 
@@ -19,6 +21,10 @@ describe('CategoriesService', () => {
       providers: [
         CategoriesService,
         { provide: CategoriesRepository, useValue: repository },
+        {
+          provide: getLoggerToken(CategoriesService.name),
+          useValue: createMockLogger(),
+        },
       ],
     }).compile();
 

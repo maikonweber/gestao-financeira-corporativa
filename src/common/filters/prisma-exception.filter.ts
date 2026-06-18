@@ -4,17 +4,25 @@ import {
   ConflictException,
   ExceptionFilter,
   HttpStatus,
-  Logger,
+  Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Prisma } from '../../../generated/prisma/client';
+import { Prisma } from '@prisma/client';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { Response } from 'express';
 
+@Injectable()
 @Catch(Prisma.PrismaClientKnownRequestError)
 export class PrismaExceptionFilter implements ExceptionFilter {
-  private readonly logger = new Logger(PrismaExceptionFilter.name);
+  constructor(
+    @InjectPinoLogger(PrismaExceptionFilter.name)
+    private readonly logger: PinoLogger,
+  ) {}
 
-  catch(exception: Prisma.PrismaClientKnownRequestError, host: ArgumentsHost): void {
+  catch(
+    exception: Prisma.PrismaClientKnownRequestError,
+    host: ArgumentsHost,
+  ): void {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
 
@@ -28,7 +36,15 @@ export class PrismaExceptionFilter implements ExceptionFilter {
         httpException = new NotFoundException('Resource not found');
         break;
       default:
-        this.logger.error(`Prisma error ${exception.code}`, exception.message);
+        this.logger.error(
+          {
+            event: 'prisma.unhandled_error',
+            code: exception.code,
+            meta: exception.meta,
+            message: exception.message,
+          },
+          'Unhandled Prisma error',
+        );
         response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
           success: false,
           statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
@@ -39,6 +55,17 @@ export class PrismaExceptionFilter implements ExceptionFilter {
     }
 
     const status = httpException.getStatus();
+
+    this.logger.warn(
+      {
+        event: 'prisma.known_error',
+        code: exception.code,
+        statusCode: status,
+        message: httpException.message,
+      },
+      'Prisma known error handled',
+    );
+
     response.status(status).json({
       success: false,
       statusCode: status,

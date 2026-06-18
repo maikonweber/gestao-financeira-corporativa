@@ -9,7 +9,7 @@ import {
   Max,
   Min,
 } from 'class-validator';
-import { TransactionType } from '../../generated/prisma/client';
+import { TransactionType } from '@prisma/client';
 
 export class PaginationQueryDto {
   @ApiPropertyOptional({ default: 1, minimum: 1 })

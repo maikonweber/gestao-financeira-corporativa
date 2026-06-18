@@ -1,7 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { Prisma } from '../../generated/prisma/client';
-import { TransactionType } from '../../generated/prisma/client';
+import { Prisma, TransactionType } from '@prisma/client';
+import { getLoggerToken } from 'nestjs-pino';
 import { TransactionsRepository } from '../transactions/transactions.repository';
+import { createMockLogger } from '../testing/pino-logger.mock';
 import { DashboardService } from './dashboard.service';
 
 describe('DashboardService', () => {
@@ -17,6 +18,10 @@ describe('DashboardService', () => {
       providers: [
         DashboardService,
         { provide: TransactionsRepository, useValue: transactionsRepository },
+        {
+          provide: getLoggerToken(DashboardService.name),
+          useValue: createMockLogger(),
+        },
       ],
     }).compile();
 

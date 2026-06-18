@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { TransactionType } from '../../generated/prisma/client';
+import { TransactionType } from '@prisma/client';
 
 export class TransactionEntity {
   @ApiProperty({ format: 'uuid' })

@@ -1,7 +1,9 @@
 import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { TransactionType } from '../../generated/prisma/client';
+import { TransactionType } from '@prisma/client';
+import { getLoggerToken } from 'nestjs-pino';
 import { CategoriesService } from '../categories/categories.service';
+import { createMockLogger } from '../testing/pino-logger.mock';
 import { TransactionsRepository } from './transactions.repository';
 import { TransactionsService } from './transactions.service';
 
@@ -26,6 +28,10 @@ describe('TransactionsService', () => {
         TransactionsService,
         { provide: TransactionsRepository, useValue: transactionsRepository },
         { provide: CategoriesService, useValue: categoriesService },
+        {
+          provide: getLoggerToken(TransactionsService.name),
+          useValue: createMockLogger(),
+        },
       ],
     }).compile();
 

@@ -1,16 +1,21 @@
 import {
-  ExceptionFilter,
-  Catch,
   ArgumentsHost,
+  Catch,
+  ExceptionFilter,
   HttpException,
   HttpStatus,
-  Logger,
+  Injectable,
 } from '@nestjs/common';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { Request, Response } from 'express';
 
+@Injectable()
 @Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {
-  private readonly logger = new Logger(HttpExceptionFilter.name);
+  constructor(
+    @InjectPinoLogger(HttpExceptionFilter.name)
+    private readonly logger: PinoLogger,
+  ) {}
 
   catch(exception: HttpException, host: ArgumentsHost): void {
     const ctx = host.switchToHttp();
@@ -26,7 +31,14 @@ export class HttpExceptionFilter implements ExceptionFilter {
           'Unexpected error';
 
     this.logger.warn(
-      `${request.method} ${request.url} - ${status} - ${JSON.stringify(message)}`,
+      {
+        event: 'http.exception',
+        statusCode: status,
+        method: request.method,
+        path: request.url,
+        message,
+      },
+      'HTTP exception handled',
     );
 
     response.status(status).json({
@@ -39,9 +51,13 @@ export class HttpExceptionFilter implements ExceptionFilter {
   }
 }
 
+@Injectable()
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
-  private readonly logger = new Logger(AllExceptionsFilter.name);
+  constructor(
+    @InjectPinoLogger(AllExceptionsFilter.name)
+    private readonly logger: PinoLogger,
+  ) {}
 
   catch(exception: unknown, host: ArgumentsHost): void {
     const ctx = host.switchToHttp();
@@ -60,8 +76,17 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
     if (status === HttpStatus.INTERNAL_SERVER_ERROR) {
       this.logger.error(
-        `${request.method} ${request.url}`,
-        exception instanceof Error ? exception.stack : String(exception),
+        {
+          event: 'http.unhandled_exception',
+          statusCode: status,
+          method: request.method,
+          path: request.url,
+          err:
+            exception instanceof Error
+              ? { message: exception.message, stack: exception.stack }
+              : { message: String(exception) },
+        },
+        'Unhandled exception',
       );
     }
 
