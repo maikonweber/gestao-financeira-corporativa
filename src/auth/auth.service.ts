@@ -50,7 +50,7 @@ export class AuthService {
       'User registered successfully',
     );
 
-    return this.buildAuthResponse(user);
+    return this.buildAuthResponse(user.id, user.email);
   }
 
   async login(dto: LoginDto): Promise<AuthResponseDto> {
@@ -79,37 +79,20 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const userEntity = this.usersService.toEntity(user);
-
     this.logger.info(
-      { event: 'auth.login.success', userId: userEntity.id, email: userEntity.email },
+      { event: 'auth.login.success', userId: user.id, email: user.email },
       'User logged in successfully',
     );
 
-    return this.buildAuthResponse(userEntity);
+    return this.buildAuthResponse(user.id, user.email);
   }
 
-  private buildAuthResponse(user: {
-    id: string;
-    name: string;
-    email: string;
-    createdAt: Date;
-    updatedAt: Date;
-  }): AuthResponseDto {
+  private buildAuthResponse(userId: string, email: string): AuthResponseDto {
     const accessToken = this.jwtService.sign({
-      sub: user.id,
-      email: user.email,
+      sub: userId,
+      email,
     });
 
-    return {
-      accessToken,
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        createdAt: user.createdAt,
-        updatedAt: user.updatedAt,
-      },
-    };
+    return { accessToken };
   }
 }

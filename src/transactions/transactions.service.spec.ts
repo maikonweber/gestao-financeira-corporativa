@@ -75,4 +75,42 @@ describe('TransactionsService', () => {
       transactionsService.findOne('user-1', 'tx-1'),
     ).rejects.toThrow(NotFoundException);
   });
+
+  it('should not create transaction when category does not belong to user', async () => {
+    categoriesService.ensureBelongsToUser.mockRejectedValue(
+      new NotFoundException('Category not found'),
+    );
+
+    await expect(
+      transactionsService.create('user-1', {
+        categoryId: 'cat-foreign',
+        description: 'Test',
+        amount: 100,
+        transactionDate: '2024-01-01',
+        type: TransactionType.EXPENSE,
+      }),
+    ).rejects.toThrow(NotFoundException);
+
+    expect(transactionsRepository.create).not.toHaveBeenCalled();
+  });
+
+  it('should return paginated transactions with correct metadata', async () => {
+    transactionsRepository.findAllByUser.mockResolvedValue({
+      items: [],
+      total: 25,
+    });
+
+    const result = await transactionsService.findAll('user-1', {
+      page: 2,
+      limit: 10,
+    });
+
+    expect(result.meta).toEqual({
+      total: 25,
+      page: 2,
+      limit: 10,
+      totalPages: 3,
+    });
+    expect(result.items).toEqual([]);
+  });
 });

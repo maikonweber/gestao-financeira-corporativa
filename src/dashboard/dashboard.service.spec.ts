@@ -52,4 +52,20 @@ describe('DashboardService', () => {
       TransactionType.INCOME,
     );
   });
+
+  it('should return zero balance when user has no transactions', async () => {
+    transactionsRepository.sumByType
+      .mockResolvedValueOnce(new Prisma.Decimal(0))
+      .mockResolvedValueOnce(new Prisma.Decimal(0));
+    transactionsRepository.topExpenseCategories.mockResolvedValue([]);
+
+    const result = await dashboardService.getSummary('user-1');
+
+    expect(result).toEqual({
+      currentBalance: '0.00',
+      totalIncome: '0.00',
+      totalExpense: '0.00',
+      topExpenseCategories: [],
+    });
+  });
 });

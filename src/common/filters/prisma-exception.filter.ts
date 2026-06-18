@@ -1,5 +1,6 @@
 import {
   ArgumentsHost,
+  BadRequestException,
   Catch,
   ConflictException,
   ExceptionFilter,
@@ -26,11 +27,24 @@ export class PrismaExceptionFilter implements ExceptionFilter {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
 
-    let httpException: ConflictException | NotFoundException;
+    let httpException:
+      | BadRequestException
+      | ConflictException
+      | NotFoundException;
 
     switch (exception.code) {
       case 'P2002':
         httpException = new ConflictException('Resource already exists');
+        break;
+      case 'P2003':
+        httpException = new ConflictException(
+          'Cannot delete or update resource because it is referenced by other records',
+        );
+        break;
+      case 'P2020':
+        httpException = new BadRequestException(
+          'Value is out of range for one or more fields',
+        );
         break;
       case 'P2025':
         httpException = new NotFoundException('Resource not found');

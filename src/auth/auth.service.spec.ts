@@ -61,7 +61,7 @@ describe('AuthService', () => {
       });
 
       expect(result.accessToken).toBe('jwt-token');
-      expect(result.user.email).toBe('john@test.com');
+      expect(result).toEqual({ accessToken: 'jwt-token' });
       expect(bcrypt.hash).toHaveBeenCalled();
     });
 
@@ -82,14 +82,8 @@ describe('AuthService', () => {
     it('should return token for valid credentials', async () => {
       usersService.findByEmail.mockResolvedValue({
         id: 'user-id',
-        passwordHash: 'hashed-password',
-      });
-      usersService.toEntity.mockReturnValue({
-        id: 'user-id',
-        name: 'John',
         email: 'john@test.com',
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        passwordHash: 'hashed-password',
       });
       (bcrypt.compare as jest.Mock).mockResolvedValue(true);
 
@@ -104,6 +98,7 @@ describe('AuthService', () => {
     it('should throw UnauthorizedException for invalid password', async () => {
       usersService.findByEmail.mockResolvedValue({
         id: 'user-id',
+        email: 'john@test.com',
         passwordHash: 'hashed-password',
       });
       (bcrypt.compare as jest.Mock).mockResolvedValue(false);
@@ -114,6 +109,39 @@ describe('AuthService', () => {
           password: 'wrong',
         }),
       ).rejects.toThrow(UnauthorizedException);
+    });
+
+    it('should throw UnauthorizedException when user does not exist', async () => {
+      usersService.findByEmail.mockResolvedValue(null);
+
+      await expect(
+        authService.login({
+          email: 'unknown@test.com',
+          password: 'password123',
+        }),
+      ).rejects.toThrow(UnauthorizedException);
+      expect(bcrypt.compare).not.toHaveBeenCalled();
+    });
+
+    it('should sign JWT with user id and email without returning user data', async () => {
+      usersService.findByEmail.mockResolvedValue({
+        id: 'user-id',
+        email: 'john@test.com',
+        passwordHash: 'hashed-password',
+      });
+      (bcrypt.compare as jest.Mock).mockResolvedValue(true);
+
+      const result = await authService.login({
+        email: 'john@test.com',
+        password: 'password123',
+      });
+
+      expect(jwtService.sign).toHaveBeenCalledWith({
+        sub: 'user-id',
+        email: 'john@test.com',
+      });
+      expect(result).toEqual({ accessToken: 'jwt-token' });
+      expect(result).not.toHaveProperty('user');
     });
   });
 });

@@ -31,6 +31,12 @@ export class CategoriesRepository {
     });
   }
 
+  countTransactions(categoryId: string): Promise<number> {
+    return this.prisma.transaction.count({
+      where: { categoryId },
+    });
+  }
+
   update(
     id: string,
     _userId: string,

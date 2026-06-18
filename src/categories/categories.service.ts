@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { Category } from '@prisma/client';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { CategoriesRepository } from './categories.repository';
@@ -77,6 +77,24 @@ export class CategoriesService {
 
   async remove(userId: string, id: string): Promise<void> {
     await this.findOne(userId, id);
+
+    const transactionCount = await this.categoriesRepository.countTransactions(id);
+
+    if (transactionCount > 0) {
+      this.logger.warn(
+        {
+          event: 'categories.delete.conflict',
+          userId,
+          categoryId: id,
+          transactionCount,
+        },
+        'Category delete blocked — linked transactions exist',
+      );
+      throw new ConflictException(
+        'Cannot delete category with associated transactions',
+      );
+    }
+
     await this.categoriesRepository.delete(id, userId);
 
     this.logger.info(
