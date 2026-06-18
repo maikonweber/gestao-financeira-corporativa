@@ -480,17 +480,19 @@ O TypeScript compila antes do Prisma Client existir se `prisma generate` não ro
 
 | Etapa | Comando | Função |
 |---|---|---|
+| **Dockerfile** | Node 22 Alpine | Garante versão compatível com Prisma 7.8 (20.19+) |
 | `postinstall` | `prisma generate` | Gera o client após `npm install` |
-| `build` | `prisma generate && nest build` | Garante o client antes da compilação Nest |
+| `build` | `prisma generate && nest build` | Compila a API NestJS |
 | `start:prod` | `prisma migrate deploy && node dist/main` | Aplica migrations e sobe a API |
 
-O pacote `prisma` está em **dependencies** (não só dev) para funcionar em produção.
+O build na Railway usa **Dockerfile** (não Nixpacks) para evitar Node 18 no ambiente de deploy.
 
 ### Passos na Railway
 
 1. Crie um projeto e conecte este repositório.
 2. Adicione um serviço **PostgreSQL** e vincule `DATABASE_URL` à API.
-3. Configure as variáveis de ambiente:
+3. O projeto usa **Node.js 22** via `Dockerfile` (Prisma 7.8 exige 20.19+). Localmente, `.nvmrc` aponta para `22.12.0`.
+4. Configure as variáveis de ambiente:
 
 | Variável | Obrigatória | Exemplo |
 |---|---|---|
@@ -501,22 +503,24 @@ O pacote `prisma` está em **dependencies** (não só dev) para funcionar em pro
 | `CORS_ORIGIN` | Não | URL do frontend |
 | `PORT` | Não | Railway define automaticamente |
 
-4. **Build command:** `npm run build` (padrão via `railway.toml`)
-5. **Start command:** `npm run start:prod` (padrão via `railway.toml`)
-6. (Opcional) Rode o seed uma vez no shell da Railway:
+5. **Build:** Railway detecta o `Dockerfile` automaticamente (`railway.toml`).
+6. **Start:** `npm run start:prod` (definido no `CMD` do Dockerfile).
+7. (Opcional) Rode o seed uma vez no shell da Railway:
 
 ```bash
 npm run prisma:seed
 ```
 
-### Arquivo `railway.toml`
+### Arquivos de deploy
+
+**`Dockerfile`** — build multi-stage com `node:22-alpine`
+
+**`railway.toml`**
 
 ```toml
 [build]
-buildCommand = "npm run build"
-
-[deploy]
-startCommand = "npm run start:prod"
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
 ```
 
 ---
