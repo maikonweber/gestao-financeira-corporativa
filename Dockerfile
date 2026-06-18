@@ -4,6 +4,8 @@ WORKDIR /app
 
 RUN apk add --no-cache openssl
 
+ENV NODE_ENV=development
+
 COPY package.json package-lock.json ./
 COPY prisma ./prisma
 COPY prisma.config.ts ./
@@ -13,7 +15,7 @@ RUN npm ci
 COPY nest-cli.json tsconfig.json tsconfig.build.json ./
 COPY src ./src
 
-RUN npm run build
+RUN npm run build && test -f dist/main.js
 
 FROM node:22-alpine AS runner
 

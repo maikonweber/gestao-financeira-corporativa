@@ -483,7 +483,7 @@ O TypeScript compila antes do Prisma Client existir se `prisma generate` não ro
 | **Dockerfile** | Node 22 Alpine | Garante versão compatível com Prisma 7.8 (20.19+) |
 | `postinstall` | `prisma generate` | Gera o client após `npm install` |
 | `build` | `prisma generate && nest build` | Compila a API NestJS |
-| `start:prod` | `prisma migrate deploy && node dist/main` | Aplica migrations e sobe a API |
+| `start:prod` | `prisma migrate deploy && node dist/main.js` | Aplica migrations e sobe a API |
 
 O build na Railway usa **Dockerfile** (não Nixpacks) para evitar Node 18 no ambiente de deploy.
 
