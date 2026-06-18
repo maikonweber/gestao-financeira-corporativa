@@ -2,15 +2,15 @@ import { ConfigService } from '@nestjs/config';
 import { Params } from 'nestjs-pino';
 
 export function getLoggerConfig(configService: ConfigService): Params {
-  const isProduction = configService.get<string>('NODE_ENV') === 'production';
+  const usePrettyLogs =
+    configService.get<string>('NODE_ENV', 'production') === 'development';
   const logLevel = configService.get<string>('LOG_LEVEL', 'info');
 
   return {
     pinoHttp: {
       level: logLevel,
-      transport: isProduction
-        ? undefined
-        : {
+      transport: usePrettyLogs
+        ? {
             target: 'pino-pretty',
             options: {
               singleLine: true,
@@ -18,7 +18,8 @@ export function getLoggerConfig(configService: ConfigService): Params {
               translateTime: 'SYS:standard',
               ignore: 'pid,hostname',
             },
-          },
+          }
+        : undefined,
       redact: {
         paths: [
           'req.headers.authorization',
