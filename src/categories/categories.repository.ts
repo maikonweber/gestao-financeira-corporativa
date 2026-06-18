@@ -33,18 +33,18 @@ export class CategoriesRepository {
 
   update(
     id: string,
-    userId: string,
+    _userId: string,
     dto: UpdateCategoryDto,
   ): Promise<Category> {
     return this.prisma.category.update({
-      where: { id, userId },
+      where: { id },
       data: dto,
     });
   }
 
-  delete(id: string, userId: string): Promise<Category> {
+  delete(id: string, _userId: string): Promise<Category> {
     return this.prisma.category.delete({
-      where: { id, userId },
+      where: { id },
     });
   }
 }
