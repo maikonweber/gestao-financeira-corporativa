@@ -22,9 +22,9 @@ export function setupSwagger(app: INestApplication): void {
     )
     .setVersion('1.0.0')
     .setContact(
-      'Equipe de Engenharia',
-      'https://github.com',
-      'engenharia@corporate-finance.com',
+      'Engenharia de Software',
+      'https://github.com/maikonweber',
+      'maikonweber@gmail.com',
     )
     .addBearerAuth(
       {
