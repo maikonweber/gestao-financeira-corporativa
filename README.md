@@ -456,8 +456,8 @@ npm run test:e2e
 | Script | Descrição |
 |---|---|
 | `npm run start:dev` | Desenvolvimento com hot-reload |
-| `npm run build` | Compilar para produção |
-| `npm run start:prod` | Executar build compilado |
+| `npm run build` | Gerar Prisma Client e compilar para produção |
+| `npm run start:prod` | Aplicar migrations e iniciar a API |
 | `npm run test` | Testes unitários |
 | `npm run test:e2e` | Testes end-to-end |
 | `npm run test:cov` | Cobertura de testes |
@@ -470,11 +470,62 @@ npm run test:e2e
 
 ---
 
+## Deploy na Railway
+
+### Por que o build falhava
+
+O TypeScript compila antes do Prisma Client existir se `prisma generate` não rodar. O `@prisma/client` só expõe tipos como `User`, `Category` e `PrismaClient` **depois** da geração.
+
+### O que o projeto faz no deploy
+
+| Etapa | Comando | Função |
+|---|---|---|
+| `postinstall` | `prisma generate` | Gera o client após `npm install` |
+| `build` | `prisma generate && nest build` | Garante o client antes da compilação Nest |
+| `start:prod` | `prisma migrate deploy && node dist/main` | Aplica migrations e sobe a API |
+
+O pacote `prisma` está em **dependencies** (não só dev) para funcionar em produção.
+
+### Passos na Railway
+
+1. Crie um projeto e conecte este repositório.
+2. Adicione um serviço **PostgreSQL** e vincule `DATABASE_URL` à API.
+3. Configure as variáveis de ambiente:
+
+| Variável | Obrigatória | Exemplo |
+|---|---|---|
+| `DATABASE_URL` | Sim | (injetada pelo plugin PostgreSQL) |
+| `JWT_SECRET` | Sim | string forte com 32+ caracteres |
+| `JWT_EXPIRES_IN` | Não | `7d` |
+| `NODE_ENV` | Não | `production` |
+| `CORS_ORIGIN` | Não | URL do frontend |
+| `PORT` | Não | Railway define automaticamente |
+
+4. **Build command:** `npm run build` (padrão via `railway.toml`)
+5. **Start command:** `npm run start:prod` (padrão via `railway.toml`)
+6. (Opcional) Rode o seed uma vez no shell da Railway:
+
+```bash
+npm run prisma:seed
+```
+
+### Arquivo `railway.toml`
+
+```toml
+[build]
+buildCommand = "npm run build"
+
+[deploy]
+startCommand = "npm run start:prod"
+```
+
+---
+
 ## Produção
 
 1. Defina `JWT_SECRET` forte e único (mín. 32 caracteres).
 2. Configure `NODE_ENV=production`.
-3. Use `npm run prisma:migrate:deploy` no pipeline de deploy.
+3. Migrations são aplicadas automaticamente via `start:prod` (`prisma migrate deploy`).
 4. Ajuste `CORS_ORIGIN` para os domínios reais do frontend.
 5. Não exponha `.env`, credenciais do seed nem logs com dados sensíveis.
 6. Em produção, logs Pino saem em JSON (sem `pino-pretty`).
