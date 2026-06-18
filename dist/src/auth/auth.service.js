@@ -41,23 +41,31 @@ var __importStar = (this && this.__importStar) || (function () {
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthService = void 0;
 const common_1 = require("@nestjs/common");
 const jwt_1 = require("@nestjs/jwt");
+const nestjs_pino_1 = require("nestjs-pino");
 const bcrypt = __importStar(require("bcrypt"));
 const users_service_1 = require("../users/users.service");
 let AuthService = class AuthService {
     usersService;
     jwtService;
+    logger;
     saltRounds = 10;
-    constructor(usersService, jwtService) {
+    constructor(usersService, jwtService, logger) {
         this.usersService = usersService;
         this.jwtService = jwtService;
+        this.logger = logger;
     }
     async register(dto) {
+        this.logger.info({ event: 'auth.register.attempt', email: dto.email }, 'Attempting user registration');
         const existingUser = await this.usersService.findByEmail(dto.email);
         if (existingUser) {
+            this.logger.warn({ event: 'auth.register.conflict', email: dto.email }, 'Registration failed — email already exists');
             throw new common_1.ConflictException('Email already registered');
         }
         const passwordHash = await bcrypt.hash(dto.password, this.saltRounds);
@@ -66,18 +74,24 @@ let AuthService = class AuthService {
             email: dto.email,
             passwordHash,
         });
+        this.logger.info({ event: 'auth.register.success', userId: user.id, email: user.email }, 'User registered successfully');
         return this.buildAuthResponse(user);
     }
     async login(dto) {
+        this.logger.info({ event: 'auth.login.attempt', email: dto.email }, 'Attempting user login');
         const user = await this.usersService.findByEmail(dto.email);
         if (!user) {
+            this.logger.warn({ event: 'auth.login.failed', email: dto.email, reason: 'user_not_found' }, 'Login failed — user not found');
             throw new common_1.UnauthorizedException('Invalid credentials');
         }
         const isPasswordValid = await bcrypt.compare(dto.password, user.passwordHash);
         if (!isPasswordValid) {
+            this.logger.warn({ event: 'auth.login.failed', email: dto.email, reason: 'invalid_password' }, 'Login failed — invalid password');
             throw new common_1.UnauthorizedException('Invalid credentials');
         }
-        return this.buildAuthResponse(this.usersService.toEntity(user));
+        const userEntity = this.usersService.toEntity(user);
+        this.logger.info({ event: 'auth.login.success', userId: userEntity.id, email: userEntity.email }, 'User logged in successfully');
+        return this.buildAuthResponse(userEntity);
     }
     buildAuthResponse(user) {
         const accessToken = this.jwtService.sign({
@@ -99,7 +113,9 @@ let AuthService = class AuthService {
 exports.AuthService = AuthService;
 exports.AuthService = AuthService = __decorate([
     (0, common_1.Injectable)(),
+    __param(2, (0, nestjs_pino_1.InjectPinoLogger)(AuthService.name)),
     __metadata("design:paramtypes", [users_service_1.UsersService,
-        jwt_1.JwtService])
+        jwt_1.JwtService,
+        nestjs_pino_1.PinoLogger])
 ], AuthService);
 //# sourceMappingURL=auth.service.js.map

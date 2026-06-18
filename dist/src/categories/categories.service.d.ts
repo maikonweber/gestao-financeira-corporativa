@@ -1,11 +1,13 @@
-import { Category } from '../../generated/prisma/client';
+import { Category } from '@prisma/client';
+import { PinoLogger } from 'nestjs-pino';
 import { CategoriesRepository } from './categories.repository';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { CategoryEntity } from './entities/category.entity';
 export declare class CategoriesService {
     private readonly categoriesRepository;
-    constructor(categoriesRepository: CategoriesRepository);
+    private readonly logger;
+    constructor(categoriesRepository: CategoriesRepository, logger: PinoLogger);
     create(userId: string, dto: CreateCategoryDto): Promise<CategoryEntity>;
     findAll(userId: string): Promise<CategoryEntity[]>;
     findOne(userId: string, id: string): Promise<CategoryEntity>;

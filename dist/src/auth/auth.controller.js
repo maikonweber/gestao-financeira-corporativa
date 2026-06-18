@@ -15,27 +15,42 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthController = void 0;
 const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
+const nestjs_pino_1 = require("nestjs-pino");
+const api_error_response_decorator_1 = require("../common/swagger/api-error-response.decorator");
 const auth_service_1 = require("./auth.service");
 const auth_response_dto_1 = require("./dto/auth-response.dto");
 const login_dto_1 = require("./dto/login.dto");
 const register_dto_1 = require("./dto/register.dto");
 let AuthController = class AuthController {
     authService;
-    constructor(authService) {
+    logger;
+    constructor(authService, logger) {
         this.authService = authService;
+        this.logger = logger;
     }
     register(dto) {
+        this.logger.info({ event: 'auth.register.request', email: dto.email }, 'Register request received');
         return this.authService.register(dto);
     }
     login(dto) {
+        this.logger.info({ event: 'auth.login.request', email: dto.email }, 'Login request received');
         return this.authService.login(dto);
     }
 };
 exports.AuthController = AuthController;
 __decorate([
     (0, common_1.Post)('register'),
-    (0, swagger_1.ApiOperation)({ summary: 'Register a new user' }),
-    (0, swagger_1.ApiResponse)({ status: 201, type: auth_response_dto_1.AuthResponseDto }),
+    (0, swagger_1.ApiOperation)({
+        summary: 'Registrar novo usuário',
+        description: 'Cria uma conta corporativa e retorna o JWT para acesso imediato às rotas protegidas. ' +
+            'O e-mail deve ser único no sistema. A senha é armazenada com hash bcrypt.',
+    }),
+    (0, swagger_1.ApiBody)({ type: register_dto_1.RegisterDto }),
+    (0, swagger_1.ApiCreatedResponse)({
+        type: auth_response_dto_1.AuthResponseDto,
+        description: 'Usuário criado com sucesso e token JWT emitido',
+    }),
+    (0, api_error_response_decorator_1.ApiPublicErrors)(),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [register_dto_1.RegisterDto]),
@@ -44,8 +59,17 @@ __decorate([
 __decorate([
     (0, common_1.Post)('login'),
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),
-    (0, swagger_1.ApiOperation)({ summary: 'Authenticate user and return JWT' }),
-    (0, swagger_1.ApiResponse)({ status: 200, type: auth_response_dto_1.AuthResponseDto }),
+    (0, swagger_1.ApiOperation)({
+        summary: 'Autenticar usuário',
+        description: 'Valida e-mail e senha e retorna um access token JWT. ' +
+            'Utilize o token no header `Authorization: Bearer <token>` nas demais rotas.',
+    }),
+    (0, swagger_1.ApiBody)({ type: login_dto_1.LoginDto }),
+    (0, swagger_1.ApiOkResponse)({
+        type: auth_response_dto_1.AuthResponseDto,
+        description: 'Credenciais válidas — token JWT retornado',
+    }),
+    (0, api_error_response_decorator_1.ApiPublicErrors)(),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [login_dto_1.LoginDto]),
@@ -54,6 +78,8 @@ __decorate([
 exports.AuthController = AuthController = __decorate([
     (0, swagger_1.ApiTags)('Auth'),
     (0, common_1.Controller)('auth'),
-    __metadata("design:paramtypes", [auth_service_1.AuthService])
+    __param(1, (0, nestjs_pino_1.InjectPinoLogger)(AuthController.name)),
+    __metadata("design:paramtypes", [auth_service_1.AuthService,
+        nestjs_pino_1.PinoLogger])
 ], AuthController);
 //# sourceMappingURL=auth.controller.js.map

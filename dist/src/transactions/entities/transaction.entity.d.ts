@@ -1,4 +1,4 @@
-import { TransactionType } from '../../generated/prisma/client';
+import { TransactionType } from '@prisma/client';
 export declare class TransactionEntity {
     id: string;
     userId: string;

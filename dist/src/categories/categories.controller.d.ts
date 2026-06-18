@@ -1,11 +1,13 @@
-import { AuthenticatedUser } from '../common/interfaces/jwt-payload.interface';
+import { PinoLogger } from 'nestjs-pino';
+import type { AuthenticatedUser } from '../common/interfaces/jwt-payload.interface';
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { CategoryEntity } from './entities/category.entity';
 export declare class CategoriesController {
     private readonly categoriesService;
-    constructor(categoriesService: CategoriesService);
+    private readonly logger;
+    constructor(categoriesService: CategoriesService, logger: PinoLogger);
     create(user: AuthenticatedUser, dto: CreateCategoryDto): Promise<CategoryEntity>;
     findAll(user: AuthenticatedUser): Promise<CategoryEntity[]>;
     findOne(user: AuthenticatedUser, id: string): Promise<CategoryEntity>;

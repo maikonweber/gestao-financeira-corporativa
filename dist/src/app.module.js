@@ -10,9 +10,11 @@ exports.AppModule = void 0;
 const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
 const core_1 = require("@nestjs/core");
+const nestjs_pino_1 = require("nestjs-pino");
 const http_exception_filter_1 = require("./common/filters/http-exception.filter");
 const prisma_exception_filter_1 = require("./common/filters/prisma-exception.filter");
 const response_interceptor_1 = require("./common/interceptors/response.interceptor");
+const logger_config_1 = require("./config/logger.config");
 const auth_module_1 = require("./auth/auth.module");
 const categories_module_1 = require("./categories/categories.module");
 const dashboard_module_1 = require("./dashboard/dashboard.module");
@@ -28,6 +30,11 @@ exports.AppModule = AppModule = __decorate([
             config_1.ConfigModule.forRoot({
                 isGlobal: true,
                 envFilePath: '.env',
+            }),
+            nestjs_pino_1.LoggerModule.forRootAsync({
+                imports: [config_1.ConfigModule],
+                inject: [config_1.ConfigService],
+                useFactory: logger_config_1.getLoggerConfig,
             }),
             prisma_module_1.PrismaModule,
             users_module_1.UsersModule,

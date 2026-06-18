@@ -5,12 +5,21 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var HttpExceptionFilter_1, AllExceptionsFilter_1;
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AllExceptionsFilter = exports.HttpExceptionFilter = void 0;
 const common_1 = require("@nestjs/common");
-let HttpExceptionFilter = HttpExceptionFilter_1 = class HttpExceptionFilter {
-    logger = new common_1.Logger(HttpExceptionFilter_1.name);
+const nestjs_pino_1 = require("nestjs-pino");
+let HttpExceptionFilter = class HttpExceptionFilter {
+    logger;
+    constructor(logger) {
+        this.logger = logger;
+    }
     catch(exception, host) {
         const ctx = host.switchToHttp();
         const response = ctx.getResponse();
@@ -21,7 +30,13 @@ let HttpExceptionFilter = HttpExceptionFilter_1 = class HttpExceptionFilter {
             ? exceptionResponse
             : exceptionResponse.message ??
                 'Unexpected error';
-        this.logger.warn(`${request.method} ${request.url} - ${status} - ${JSON.stringify(message)}`);
+        this.logger.warn({
+            event: 'http.exception',
+            statusCode: status,
+            method: request.method,
+            path: request.url,
+            message,
+        }, 'HTTP exception handled');
         response.status(status).json({
             success: false,
             statusCode: status,
@@ -32,11 +47,17 @@ let HttpExceptionFilter = HttpExceptionFilter_1 = class HttpExceptionFilter {
     }
 };
 exports.HttpExceptionFilter = HttpExceptionFilter;
-exports.HttpExceptionFilter = HttpExceptionFilter = HttpExceptionFilter_1 = __decorate([
-    (0, common_1.Catch)(common_1.HttpException)
+exports.HttpExceptionFilter = HttpExceptionFilter = __decorate([
+    (0, common_1.Injectable)(),
+    (0, common_1.Catch)(common_1.HttpException),
+    __param(0, (0, nestjs_pino_1.InjectPinoLogger)(HttpExceptionFilter.name)),
+    __metadata("design:paramtypes", [nestjs_pino_1.PinoLogger])
 ], HttpExceptionFilter);
-let AllExceptionsFilter = AllExceptionsFilter_1 = class AllExceptionsFilter {
-    logger = new common_1.Logger(AllExceptionsFilter_1.name);
+let AllExceptionsFilter = class AllExceptionsFilter {
+    logger;
+    constructor(logger) {
+        this.logger = logger;
+    }
     catch(exception, host) {
         const ctx = host.switchToHttp();
         const response = ctx.getResponse();
@@ -48,7 +69,15 @@ let AllExceptionsFilter = AllExceptionsFilter_1 = class AllExceptionsFilter {
             ? exception.message
             : 'Internal server error';
         if (status === common_1.HttpStatus.INTERNAL_SERVER_ERROR) {
-            this.logger.error(`${request.method} ${request.url}`, exception instanceof Error ? exception.stack : String(exception));
+            this.logger.error({
+                event: 'http.unhandled_exception',
+                statusCode: status,
+                method: request.method,
+                path: request.url,
+                err: exception instanceof Error
+                    ? { message: exception.message, stack: exception.stack }
+                    : { message: String(exception) },
+            }, 'Unhandled exception');
         }
         response.status(status).json({
             success: false,
@@ -60,7 +89,10 @@ let AllExceptionsFilter = AllExceptionsFilter_1 = class AllExceptionsFilter {
     }
 };
 exports.AllExceptionsFilter = AllExceptionsFilter;
-exports.AllExceptionsFilter = AllExceptionsFilter = AllExceptionsFilter_1 = __decorate([
-    (0, common_1.Catch)()
+exports.AllExceptionsFilter = AllExceptionsFilter = __decorate([
+    (0, common_1.Injectable)(),
+    (0, common_1.Catch)(),
+    __param(0, (0, nestjs_pino_1.InjectPinoLogger)(AllExceptionsFilter.name)),
+    __metadata("design:paramtypes", [nestjs_pino_1.PinoLogger])
 ], AllExceptionsFilter);
 //# sourceMappingURL=http-exception.filter.js.map

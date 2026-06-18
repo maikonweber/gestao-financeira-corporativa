@@ -37,19 +37,31 @@ class DashboardResponseDto {
 }
 exports.DashboardResponseDto = DashboardResponseDto;
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: '45000.00' }),
+    (0, swagger_1.ApiProperty)({
+        example: '45000.00',
+        description: 'Saldo atual (totalIncome − totalExpense)',
+    }),
     __metadata("design:type", String)
 ], DashboardResponseDto.prototype, "currentBalance", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: '120000.00' }),
+    (0, swagger_1.ApiProperty)({
+        example: '120000.00',
+        description: 'Soma de todas as transações do tipo INCOME',
+    }),
     __metadata("design:type", String)
 ], DashboardResponseDto.prototype, "totalIncome", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: '75000.00' }),
+    (0, swagger_1.ApiProperty)({
+        example: '75000.00',
+        description: 'Soma de todas as transações do tipo EXPENSE',
+    }),
     __metadata("design:type", String)
 ], DashboardResponseDto.prototype, "totalExpense", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ type: [TopExpenseCategoryDto] }),
+    (0, swagger_1.ApiProperty)({
+        type: [TopExpenseCategoryDto],
+        description: 'Top 5 categorias com maior volume de despesas',
+    }),
     __metadata("design:type", Array)
 ], DashboardResponseDto.prototype, "topExpenseCategories", void 0);
 //# sourceMappingURL=dashboard-response.dto.js.map

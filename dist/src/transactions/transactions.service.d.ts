@@ -1,3 +1,4 @@
+import { PinoLogger } from 'nestjs-pino';
 import { PaginatedResponse } from '../common/interfaces/api-response.interface';
 import { CategoriesService } from '../categories/categories.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
@@ -8,7 +9,8 @@ import { TransactionsRepository } from './transactions.repository';
 export declare class TransactionsService {
     private readonly transactionsRepository;
     private readonly categoriesService;
-    constructor(transactionsRepository: TransactionsRepository, categoriesService: CategoriesService);
+    private readonly logger;
+    constructor(transactionsRepository: TransactionsRepository, categoriesService: CategoriesService, logger: PinoLogger);
     create(userId: string, dto: CreateTransactionDto): Promise<TransactionEntity>;
     findAll(userId: string, filters: FilterTransactionDto): Promise<PaginatedResponse<TransactionEntity>>;
     findOne(userId: string, id: string): Promise<TransactionEntity>;

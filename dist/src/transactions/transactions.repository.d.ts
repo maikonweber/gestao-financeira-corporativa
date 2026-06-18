@@ -1,5 +1,5 @@
-import { Prisma, Transaction, TransactionType } from '../../generated/prisma/client';
-import { PrismaService } from '../../prisma/prisma.service';
+import { Prisma, Transaction, TransactionType } from '@prisma/client';
+import { PrismaService } from '../prisma/prisma.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { FilterTransactionDto } from './dto/filter-transaction.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';

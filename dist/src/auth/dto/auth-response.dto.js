@@ -18,11 +18,17 @@ class AuthResponseDto {
 }
 exports.AuthResponseDto = AuthResponseDto;
 __decorate([
-    (0, swagger_1.ApiProperty)(),
+    (0, swagger_1.ApiProperty)({
+        example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+        description: 'JWT access token para uso no header Authorization',
+    }),
     __metadata("design:type", String)
 ], AuthResponseDto.prototype, "accessToken", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ type: user_entity_1.UserEntity }),
+    (0, swagger_1.ApiProperty)({
+        type: user_entity_1.UserEntity,
+        description: 'Dados do usuário autenticado (sem senha)',
+    }),
     __metadata("design:type", user_entity_1.UserEntity)
 ], AuthResponseDto.prototype, "user", void 0);
 //# sourceMappingURL=auth-response.dto.js.map

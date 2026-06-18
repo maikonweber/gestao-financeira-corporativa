@@ -19,21 +19,29 @@ class RegisterDto {
 }
 exports.RegisterDto = RegisterDto;
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: 'John Doe' }),
+    (0, swagger_1.ApiProperty)({
+        example: 'João Silva',
+        description: 'Nome completo do usuário corporativo',
+    }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
 ], RegisterDto.prototype, "name", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: 'john@company.com' }),
+    (0, swagger_1.ApiProperty)({
+        example: 'joao@empresa.com',
+        description: 'E-mail corporativo único no sistema',
+    }),
     (0, class_validator_1.IsEmail)(),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
 ], RegisterDto.prototype, "email", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: 'SecurePass@123', minLength: 8 }),
-    (0, class_validator_1.IsString)(),
-    (0, class_validator_1.MinLength)(8),
+    (0, swagger_1.ApiProperty)({
+        example: 'SecurePass@123',
+        minLength: 8,
+        description: 'Senha com no mínimo 8 caracteres (armazenada com bcrypt)',
+    }),
     __metadata("design:type", String)
 ], RegisterDto.prototype, "password", void 0);
 //# sourceMappingURL=register.dto.js.map

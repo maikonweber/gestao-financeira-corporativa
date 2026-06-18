@@ -8,13 +8,12 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FilterTransactionDto = exports.PaginationQueryDto = void 0;
 const swagger_1 = require("@nestjs/swagger");
 const class_transformer_1 = require("class-transformer");
 const class_validator_1 = require("class-validator");
-const client_1 = require("../../generated/prisma/client");
+const client_1 = require("@prisma/client");
 class PaginationQueryDto {
     page = 1;
     limit = 10;
@@ -48,7 +47,7 @@ __decorate([
     (0, swagger_1.ApiPropertyOptional)({ enum: client_1.TransactionType }),
     (0, class_validator_1.IsEnum)(client_1.TransactionType),
     (0, class_validator_1.IsOptional)(),
-    __metadata("design:type", typeof (_a = typeof client_1.TransactionType !== "undefined" && client_1.TransactionType) === "function" ? _a : Object)
+    __metadata("design:type", String)
 ], FilterTransactionDto.prototype, "type", void 0);
 __decorate([
     (0, swagger_1.ApiPropertyOptional)({ format: 'uuid' }),

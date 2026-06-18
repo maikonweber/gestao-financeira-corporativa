@@ -1,11 +1,19 @@
 import { ValidationPipe } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
+import { Logger } from 'nestjs-pino';
 import { AppModule } from './app.module';
+import { getCorsConfig } from './config/cors.config';
 import { setupSwagger } from './config/swagger.config';
 
 async function bootstrap(): Promise<void> {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { bufferLogs: true });
 
+  const configService = app.get(ConfigService);
+  const logger = app.get(Logger);
+
+  app.useLogger(logger);
+  app.enableCors(getCorsConfig(configService));
   app.setGlobalPrefix('api/v1');
 
   app.useGlobalPipes(
@@ -21,8 +29,19 @@ async function bootstrap(): Promise<void> {
 
   setupSwagger(app);
 
-  const port = process.env.PORT ?? 3000;
+  const port = configService.get<number>('PORT', 3000);
   await app.listen(port);
+
+  logger.log(
+    {
+      event: 'app.bootstrap.success',
+      port,
+      environment: configService.get<string>('NODE_ENV', 'development'),
+      swagger: `http://localhost:${port}/api/docs`,
+      apiPrefix: '/api/v1',
+    },
+    'Application started',
+  );
 }
 
 bootstrap();

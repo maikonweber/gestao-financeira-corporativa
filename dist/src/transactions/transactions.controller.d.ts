@@ -1,4 +1,5 @@
-import { AuthenticatedUser } from '../common/interfaces/jwt-payload.interface';
+import { PinoLogger } from 'nestjs-pino';
+import type { AuthenticatedUser } from '../common/interfaces/jwt-payload.interface';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { FilterTransactionDto } from './dto/filter-transaction.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
@@ -6,7 +7,8 @@ import { TransactionEntity } from './entities/transaction.entity';
 import { TransactionsService } from './transactions.service';
 export declare class TransactionsController {
     private readonly transactionsService;
-    constructor(transactionsService: TransactionsService);
+    private readonly logger;
+    constructor(transactionsService: TransactionsService, logger: PinoLogger);
     create(user: AuthenticatedUser, dto: CreateTransactionDto): Promise<TransactionEntity>;
     findAll(user: AuthenticatedUser, filters: FilterTransactionDto): Promise<import("../common/interfaces/api-response.interface").PaginatedResponse<TransactionEntity>>;
     findOne(user: AuthenticatedUser, id: string): Promise<TransactionEntity>;
